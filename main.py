@@ -1,8 +1,9 @@
+from twitchio.ext import commands
 from async_google_trans_new import google_translator
+import deepl
+import config
 import os
 import time
-from twitchio.ext import commands
-import config
 import sys
 import signal
 import glob
@@ -83,15 +84,17 @@ class Bot(commands.Bot):
         if config.Debug: print(f'    LANGUAGE  DETECTION    ')
         if config.Debug: print(f'###########################')
         lang_detect = ''
+
+        ## GOOGLE_TRANS_NEW | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'google':
             try:
                 detected = await translator.detect(in_text)
                 lang_detect = detected[0]
             except Exception as e:
                 if config.Debug: print(e)
-            if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect}')
-            lang_dest = config.lang_Home if lang_detect != config.lang_Home else config.lang_Away
-            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest}")
+            if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.lower()}')
+            lang_dest = config.lang_Home.lower() if lang_detect != config.lang_Home.lower() else config.lang_Away.lower()
+            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.lower()}")
             m = in_text.split(':')
             if len(m) >= 2:
                 if m[0] in config.TargetLangs:
@@ -110,13 +113,34 @@ class Bot(commands.Bot):
             
             translatedText = await translator.translate(in_text, lang_dest)
         
-        ## USING GOOGLE_TRANS_NEW
-        if config.Translator == 'google':
+        ## DEEPL-TRANSLATE | LANGUAGE DETECTION & TRANSLATION
+        if config.Translator == 'deepl':
             try:
-                translatedText = await translator.translate(in_text, lang_dest)
+                detected = await translator.detect(in_text)
+                lang_detect = detected[0]
             except Exception as e:
-                if config.Debug: print(e)                
-
+                if config.Debug: print(e)
+            if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.upper()}')
+            lang_dest = config.lang_Home.upper() if lang_detect != config.lang_Home.upper() else config.lang_Away.upper()
+            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.upper()}")
+            m = in_text.split(':')
+            if len(m) >= 2:
+                if m[0] in config.TargetLangs:
+                    lang_dest = m[0]
+                    in_text = ':'.join(m[1:])
+            else:
+                if lang_detect in Ignore_Lang:
+                    return
+            if config.Debug: print(f"MESSAGE          | {in_text}")
+            if config.Debug: print('USER             | {}'.format(user))
+            if lang_detect == lang_dest:
+                return
+            if config.Debug: print(f'###########################')
+            if config.Debug: print(f'        TRANSLATION        ')
+            if config.Debug: print(f'###########################')
+            
+            translatedText = deepl.translate(source_language="JA", target_language="EN", text=in_text, formality_tone="informal")  
+                  
         ## TRANSLATED OUT TEXT
         if config.Debug: print('ENGINE            | {}'.format(config.Translator))
         out_text = translatedText
