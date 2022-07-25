@@ -11,3 +11,4 @@ HOW TO USE:
 SPECIAL THANKS:
 * Sayonari: https://github.com/sayonari | https://github.com/sayonari/twitchTransFreeNext
 * KaiKendoh : https://github.com/kaikendoh
+* ptrstn : https://github.com/ptrstn | https://github.com/ptrstn/deepl-translate
