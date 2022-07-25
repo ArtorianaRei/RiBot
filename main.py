@@ -139,7 +139,7 @@ class Bot(commands.Bot):
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
-            translatedText = deepl.translate(source_language="JA", target_language="EN", text=in_text, formality_tone="informal")  
+            translatedText = deepl.translate(source_language=config.lang_Away.upper(), target_language=config.lang_Home.upper(), text=in_text, formality_tone="informal")  
                   
         ## TRANSLATED OUT TEXT
         if config.Debug: print('ENGINE            | {}'.format(config.Translator))
