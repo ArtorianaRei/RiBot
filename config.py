@@ -6,7 +6,7 @@ Bot_Color               = 'DodgerBlue'
 # Alternate Colors      |  'Blue', 'Coral', 'DodgerBlue', 'SpringGreen', 'YellowGreen', 'Green', 'OrangeRed', 'Red', 'GoldenRod', 'HotPink', 'CadetBlue', 'SeaGreen', 'Chocolate', 'BlueViolet', 'Firebrick'
 
 Translator              = 'google'
-# Translator            | 'google'
+# Translator            | 'google' or 'deepl'
 
 GoogleTranslate_suffix  = 'com'
 lang_Home               = 'en'
