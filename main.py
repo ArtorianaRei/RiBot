@@ -111,7 +111,7 @@ class Bot(commands.Bot):
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
-            if in_text == '':
+            if not in_text:
                 return
             else:
                 translatedText = await translator.translate(in_text, lang_dest)
@@ -142,7 +142,7 @@ class Bot(commands.Bot):
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
-            if in_text == '':
+            if not in_text:
                 return
             else:
                 translatedText = deepl.translate(source_language=config.Lang_Away.upper(), target_language=config.Lang_Home.upper(), text=in_text, formality_tone="informal")  
@@ -213,4 +213,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-   
