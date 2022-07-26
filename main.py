@@ -111,7 +111,10 @@ class Bot(commands.Bot):
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
-            translatedText = await translator.translate(in_text, lang_dest)
+            if in_text == '':
+                return
+            else:
+                translatedText = await translator.translate(in_text, lang_dest)
         
         ## DEEPL-TRANSLATE | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'deepl':
@@ -139,7 +142,10 @@ class Bot(commands.Bot):
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
-            translatedText = deepl.translate(source_language=config.lang_Away.upper(), target_language=config.lang_Home.upper(), text=in_text, formality_tone="informal")  
+            if in_text == '':
+                return
+            else:
+                translatedText = deepl.translate(source_language=config.lang_Away.upper(), target_language=config.lang_Home.upper(), text=in_text, formality_tone="informal")  
                   
         ## TRANSLATED OUT TEXT
         if config.Debug: print('ENGINE            | {}'.format(config.Translator))
