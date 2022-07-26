@@ -93,7 +93,7 @@ class Bot(commands.Bot):
             except Exception as e:
                 if config.Debug: print(e)
             if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.lower()}')
-            lang_dest = config.lang_Home.lower() if lang_detect != config.lang_Home.lower() else config.lang_Away.lower()
+            lang_dest = config.Lang_Home.lower() if lang_detect != config.Lang_Home.lower() else config.Lang_Away.lower()
             if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.lower()}")
             m = in_text.split(':')
             if len(m) >= 2:
@@ -124,7 +124,7 @@ class Bot(commands.Bot):
             except Exception as e:
                 if config.Debug: print(e)
             if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.upper()}')
-            lang_dest = config.lang_Home.upper() if lang_detect != config.lang_Home.upper() else config.lang_Away.upper()
+            lang_dest = config.Lang_Home.upper() if lang_detect != config.Lang_Home.upper() else config.Lang_Away.upper()
             if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.upper()}")
             m = in_text.split(':')
             if len(m) >= 2:
@@ -145,7 +145,7 @@ class Bot(commands.Bot):
             if in_text == '':
                 return
             else:
-                translatedText = deepl.translate(source_language=config.lang_Away.upper(), target_language=config.lang_Home.upper(), text=in_text, formality_tone="informal")  
+                translatedText = deepl.translate(source_language=config.Lang_Away.upper(), target_language=config.Lang_Home.upper(), text=in_text, formality_tone="informal")  
                   
         ## TRANSLATED OUT TEXT
         if config.Debug: print('ENGINE            | {}'.format(config.Translator))
