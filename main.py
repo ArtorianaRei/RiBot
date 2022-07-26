@@ -15,7 +15,7 @@ translator = google_translator(url_suffix=url_suffix)
 ## CONFIG FORMATTING
 if config.Twitch_OAUTH.startswith('oauth:'):
     config.Twitch_OAUTH = config.Twitch_OAUTH[6:]
-Ignore_Lang = [x.strip() for x in config.Ignore_Lang]
+Lang_Ignore = [x.strip() for x in config.Lang_Ignore]
 Ignore_Users = [x.strip() for x in config.Ignore_Users]
 Ignore_Users = [str.lower() for str in Ignore_Users]
 Ignore_Line = [x.strip() for x in config.Ignore_Line]
@@ -101,7 +101,7 @@ class Bot(commands.Bot):
                     lang_dest = m[0]
                     in_text = ':'.join(m[1:])
             else:
-                if lang_detect in Ignore_Lang:
+                if lang_detect in Lang_Ignore:
                     return
             if config.Debug: print(f"MESSAGE          | {in_text}")
             if config.Debug: print('USER             | {}'.format(user))
@@ -132,7 +132,7 @@ class Bot(commands.Bot):
                     lang_dest = m[0]
                     in_text = ':'.join(m[1:])
             else:
-                if lang_detect in Ignore_Lang:
+                if lang_detect in Lang_Ignore:
                     return
             if config.Debug: print(f"MESSAGE          | {in_text}")
             if config.Debug: print('USER             | {}'.format(user))
@@ -213,3 +213,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+   
