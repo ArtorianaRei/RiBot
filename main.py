@@ -8,6 +8,7 @@ import sys
 import signal
 import glob
 from shutil import rmtree
+from dbd import *
 
 url_suffix = config.GoogleTranslate_suffix
 translator = google_translator(url_suffix=url_suffix)
@@ -155,6 +156,113 @@ class Bot(commands.Bot):
         print(out_text)
         if config.Debug: print(f'###########################')
         await msg.channel.send(out_text)
+
+        # shrine command
+    @commands.command()
+    async def shrine(self, ctx: commands.Context):
+        sos_list, remaining = shrine_scrape()
+        await ctx.send(f"The current perks in the Shrine of Secrets are: {sos_list}. The Shrine will refresh in {remaining}.")
+
+    # killers command
+    @commands.command()
+    async def killers(self, ctx: commands.Context):
+        killer = killer_scrape()
+        print(len(killer))
+        await ctx.send(f'The current killers are: {killer}.')
+
+    # survivors command
+    @commands.command()
+    async def survivors(self, ctx: commands.Context):
+        survivor = survivor_scrape()
+        print(len(survivor))
+        await ctx.send(f'The current survivors are: {survivor}.')
+    
+    # perkhelp command
+    @commands.command()
+    async def perkhelp(self, ctx: commands.Context):
+        await ctx.send(perkhelp)
+
+    # statushelp
+    @commands.command()
+    async def statushelp(self, ctx: commands.Context):
+        await ctx.send(statushelp)
+
+    # perk command
+    # @commands.cooldown(1, 10, commands.Bucket.channel)
+    @commands.command()
+    async def perk(self, ctx:commands.Context, *, perk):
+        if perk.lower() == 'help':
+            await ctx.send(perkhelp)
+        else:
+            # take perk from chat message and run through perk_scrape function
+            try:
+                perk_name, perk_desc = perk_scrape(perk.lower())
+                perk_full = perk_name + ' - ' + perk_desc
+
+                # if description is below twitch's character limit, send it to twitch chat
+                if len(perk_full) <= 500:
+                    await ctx.send(perk_full)
+
+                # If greater than twitch's char limit, split it up
+                else:
+                    # Check how many messages will need to be sent
+                    sets = round(len(perk_full)/500 + 0.5)
+
+                    # Split up the description by the last space in each 500 characters
+                    for i in range(sets):
+                        if i == 0:
+                            s_index = perk_desc[:491 - len(perk_name)].rfind(' ')
+                            await ctx.send(perk_name + ' (' + str(i + 1) + '/' + str(sets) + ') - ' + perk_desc[:s_index])
+                            i += 1
+                            perk_desc = perk_desc[s_index + 1:]
+                        elif i == sets - 1:
+                            await ctx.send('(' + str(i + 1) + '/' + str(sets) + ') - ' + perk_desc)
+                        else:
+                            s_index = perk_desc[:494].rfind(' ')
+                            await ctx.send('(' + str(i + 1) + '/' + str(sets) + ') - ' + perk_desc[:s_index])
+                            i += 1
+                            perk_desc = perk_desc[s_index + 1:]
+            
+            except AttributeError:
+                await ctx.send('No perk found!')
+
+
+    # status command
+    # @commands.cooldown(1, 10, commands.Bucket.channel)
+    @commands.command()
+    async def status(self, ctx:commands.Context, *, status):
+        if status.lower() == 'help':
+            await ctx.send(statushelp)
+        else:
+            try:
+                status_name, status_desc = status_scrape(status.lower())
+                status_full = status_name + ' - ' + status_desc
+
+                # if description is below twitch's character limit, send it to twitch chat
+                if len(status_full) <= 500:
+                    await ctx.send(status_full)
+
+                # If greater than twitch's char limit, split it up
+                else:
+                    # Check how many messages will need to be sent
+                    sets = round(len(status_full)/500 + 0.5)
+
+                    # Split up the description by the last space in each 500 characters
+                    for i in range(sets):
+                        if i == 0:
+                            s_index = status_desc[:491 - len(status_name)].rfind(' ')
+                            await ctx.send(status_name + ' (' + str(i + 1) + '/' + str(sets) + ') - ' + status_desc[:s_index])
+                            i += 1
+                            status_desc = status_desc[s_index + 1:]
+                        elif i == sets - 1:
+                            await ctx.send('(' + str(i + 1) + '/' + str(sets) + ') - ' + status_desc)
+                        else:
+                            s_index = status_desc[:494].rfind(' ')
+                            await ctx.send('(' + str(i + 1) + '/' + str(sets) + ') - ' + status_desc[:s_index])
+                            i += 1
+                            status_desc = status_desc[s_index + 1:]
+            except AttributeError:
+                await ctx.send('No status found!')
 
 bot = Bot()
 
