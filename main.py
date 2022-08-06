@@ -10,19 +10,17 @@ url_suffix = config.GoogleTranslate_suffix
 translator = AsyncTranslator(url_suffix=url_suffix)
 
 ## CONFIG FORMATTING
-if config.Twitch_OAUTH.startswith('oauth:'):
-    config.Twitch_OAUTH = config.Twitch_OAUTH[6:]
-Lang_Ignore = [x.strip() for x in config.Lang_Ignore]
-Ignore_Users = [x.strip() for x in config.Ignore_Users]
-Ignore_Users = [str.lower() for str in Ignore_Users]
-Ignore_Line = [x.strip() for x in config.Ignore_Line]
-Delete_Words = [x.strip() for x in config.Delete_Words]
+Lang_Ignore = [x.strip() for x in config.Lang_Ignore]                   ## LOAD CONFIG SPECIFIED INGORE LANGUAGE LIST                       || IGNORE WHOLE TEXT IF CONFID SPECIFIED LANGUAGE DETECTED
+Ignore_Users = [x.strip() for x in config.Ignore_Users]                 ## LOAD CONFIG SPECIFIED INGORE USERS LIST                          || IGNORE WHOLE TEXT IF CONFIG SPECIFIED USER DETECTED
+Ignore_Users = [str.lower() for str in Ignore_Users]                    ## FORMAT CONFIG SPECIFIED INGORE USERS LIST
+Ignore_Line = [x.strip() for x in config.Ignore_Line]                   ## LOAD CONFIG SPECIFIED INGORE LINE LIST                           || IGNORE WHOLE TEXT IF CONFIG SPECIFED LINE DETECTED
+Delete_Words = [x.strip() for x in config.Delete_Words]                 ## LOAD CONFIG SPECIFIED INGORE WORDS LIST                          || IGNORE ONLY CONFIG SPECIFIED WORD
 
 class Bot(commands.Bot):
 
     def __init__(self):                                                 ## TWITCH IRC CONNECTION
         super().__init__(
-            token               = "oauth:" + config.Twitch_OAUTH,
+            token               = config.Twitch_OAUTH,
             nick                = config.Twitch_Nick,
             prefix              = "!",
             initial_channels    = [config.Twitch_Channel]
@@ -32,8 +30,8 @@ class Bot(commands.Bot):
         print(f"STATUS       | ONLINE")
         print('###########################')
         channel = self.get_channel(config.Twitch_Channel)
-        await channel.send(f"/color {config.Bot_Color}")
-        await channel.send(f"/me  is now online! TehePelo")
+        await channel.send(f"/color {config.Bot_Color}")                ## SET CONFIG SPECIFIED USERNAME COLOR
+        await channel.send(f"/me  is now online! TehePelo")             ## CONNECTION ANNOUNCEMENT TO CHANNEL
 
     ## MESSAGE PROCESSING
     async def event_message(self, msg):
@@ -78,7 +76,7 @@ class Bot(commands.Bot):
         message = " ".join( message.split() )                           ## JOINS MULTIPLE EMPTY STRINGS INTO ONE
         if not message:                                                 ## IGNORE IF MESSAGE IS BLANK
             return
-        in_text = message                                               ## PARSE MESSAGE TO TRANSLATION
+        in_text = message                                               ## PARSE MESSAGE TO TRANSLATION AS IN_TEXT
 
         ## GOOGLE_TRANS_NEW | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'google':
@@ -145,7 +143,7 @@ class Bot(commands.Bot):
             
             translatedText = deepl.translate(source_language=config.Lang_Away.upper(), target_language=config.Lang_Home.upper(), text=in_text, formality_tone="informal")  
                   
-        ## TRANSLATED OUT TEXT TO CHANNEL MESSAGE
+        ## TRANSLATED OUT TEXT TO CHANNEL
         if config.Debug: print('ENGINE            | {}'.format(config.Translator))
         out_text = translatedText
         if config.Show_ByName:
