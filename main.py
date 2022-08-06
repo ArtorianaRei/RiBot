@@ -1,5 +1,5 @@
 from twitchio.ext import commands
-from async_google_trans_new import google_translator
+from async_google_trans_new import AsyncTranslator, constant
 import deepl
 import config
 import os
@@ -7,10 +7,11 @@ import time
 import sys
 import signal
 import glob
+import re
 from shutil import rmtree
 
 url_suffix = config.GoogleTranslate_suffix
-translator = google_translator(url_suffix=url_suffix)
+translator = AsyncTranslator(url_suffix=url_suffix)
 
 ## CONFIG FORMATTING
 if config.Twitch_OAUTH.startswith('oauth:'):
@@ -23,7 +24,7 @@ Delete_Words = [x.strip() for x in config.Delete_Words]
 
 class Bot(commands.Bot):
 
-    def __init__(self):
+    def __init__(self):                                                 ## TWITCH IRC CONNECTION
         super().__init__(
             token               = "oauth:" + config.Twitch_OAUTH,
             nick                = config.Twitch_Nick,
@@ -50,12 +51,12 @@ class Bot(commands.Bot):
         message = msg.content
         user    = msg.author.name.lower()
 
-        if user in Ignore_Users:
+        if user in Ignore_Users:                                        ## IGNORE CONFIG SPECIFIED USERS
             return
-        for w in Ignore_Line:
+        for w in Ignore_Line:                                           ## IGNORE WHOLE TEXT IF CONFIG SPECIFIED TEXT DETECTED
             if w in message:
                 return
-        for w in Delete_Words:
+        for w in Delete_Words:                                          ## IGNORE CONFIG SPECIFIED WORDS / PHRASES
             message = message.replace(w, '')
 
         ## EMOTE PROCESSING & REMOVAL
@@ -77,44 +78,44 @@ class Bot(commands.Bot):
                 for w in sorted(emote_list, key=len, reverse=True):
                     message = message.replace(w, '')
 
-        message = " ".join( message.split() )
-        in_text = message
-
-        ## LANGUAGE DETECTION
-        if config.Debug: print(f'    LANGUAGE  DETECTION    ')
-        if config.Debug: print(f'###########################')
-        lang_detect = ''
+        message = re.sub(r'@\S+', '', message)                          ## REMOVES USERNAME / @USER
+        message = " ".join( message.split() )                           ## JOINS MULTIPLE EMPTY STRINGS INTO ONE
+        if not message:                                                 ## IGNORE IF MESSAGE IS BLANK
+            return
+        in_text = message                                               ## PARSE MESSAGE TO TRANSLATION
 
         ## GOOGLE_TRANS_NEW | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'google':
+            lang_detect = ''
             try:
                 detected = await translator.detect(in_text)
                 lang_detect = detected[0]
             except Exception as e:
                 if config.Debug: print(e)
+
+            lang_dest = config.Lang_Home.lower()
+            if lang_detect == lang_dest:
+                return
+            if lang_detect in Lang_Ignore:
+                return
+
+            if config.Debug: print(f'###########################')
+            if config.Debug: print(f'    LANGUAGE  DETECTION    ')
+            if config.Debug: print(f'###########################')
             if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.lower()}')
-            lang_dest = config.Lang_Home.lower() if lang_detect != config.Lang_Home.lower() else config.Lang_Away.lower()
             if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.lower()}")
             m = in_text.split(':')
             if len(m) >= 2:
                 if m[0] in config.TargetLangs:
                     lang_dest = m[0]
                     in_text = ':'.join(m[1:])
-            else:
-                if lang_detect in Lang_Ignore:
-                    return
             if config.Debug: print(f"MESSAGE          | {in_text}")
             if config.Debug: print('USER             | {}'.format(user))
-            if lang_detect == lang_dest:
-                return
             if config.Debug: print(f'###########################')
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
-            if not in_text:
-                return
-            else:
-                translatedText = await translator.translate(in_text, lang_dest)
+            translatedText = await translator.translate(in_text, lang_dest)
         
         ## DEEPL-TRANSLATE | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'deepl':
@@ -123,17 +124,23 @@ class Bot(commands.Bot):
                 lang_detect = detected[0]
             except Exception as e:
                 if config.Debug: print(e)
+
+            lang_dest = config.Lang_Home.upper()
+            if lang_detect in Lang_Ignore:
+                return
+            if lang_detect == lang_dest:
+                return
+
+            if config.Debug: print(f'###########################')
+            if config.Debug: print(f'    LANGUAGE  DETECTION    ')
+            if config.Debug: print(f'###########################')
             if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.upper()}')
-            lang_dest = config.Lang_Home.upper() if lang_detect != config.Lang_Home.upper() else config.Lang_Away.upper()
             if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.upper()}")
             m = in_text.split(':')
             if len(m) >= 2:
                 if m[0] in config.TargetLangs:
                     lang_dest = m[0]
                     in_text = ':'.join(m[1:])
-            else:
-                if lang_detect in Lang_Ignore:
-                    return
             if config.Debug: print(f"MESSAGE          | {in_text}")
             if config.Debug: print('USER             | {}'.format(user))
             if lang_detect == lang_dest:
@@ -142,12 +149,9 @@ class Bot(commands.Bot):
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
-            if not in_text:
-                return
-            else:
-                translatedText = deepl.translate(source_language=config.Lang_Away.upper(), target_language=config.Lang_Home.upper(), text=in_text, formality_tone="informal")  
+            translatedText = deepl.translate(source_language=config.Lang_Away.upper(), target_language=config.Lang_Home.upper(), text=in_text, formality_tone="informal")  
                   
-        ## TRANSLATED OUT TEXT
+        ## TRANSLATED OUT TEXT TO CHANNEL MESSAGE
         if config.Debug: print('ENGINE            | {}'.format(config.Translator))
         out_text = translatedText
         if config.Show_ByName:
