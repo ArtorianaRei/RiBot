@@ -1,14 +1,10 @@
 from twitchio.ext import commands
 from async_google_trans_new import AsyncTranslator, constant
-import deepl
-import config
-import os
-import time
-import sys
-import signal
-import glob
 import re
-from shutil import rmtree
+import deepl
+import signal
+import config
+from shutil import rmtree                                                    
 
 url_suffix = config.GoogleTranslate_suffix
 translator = AsyncTranslator(url_suffix=url_suffix)
@@ -99,7 +95,6 @@ class Bot(commands.Bot):
             if lang_detect in Lang_Ignore:
                 return
 
-            if config.Debug: print(f'###########################')
             if config.Debug: print(f'    LANGUAGE  DETECTION    ')
             if config.Debug: print(f'###########################')
             if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.lower()}')
@@ -118,7 +113,7 @@ class Bot(commands.Bot):
             translatedText = await translator.translate(in_text, lang_dest)
         
         ## DEEPL-TRANSLATE | LANGUAGE DETECTION & TRANSLATION
-        if config.Translator == 'deepl':
+        elif config.Translator == 'deepl':
             try:
                 detected = await translator.detect(in_text)
                 lang_detect = detected[0]
@@ -131,7 +126,6 @@ class Bot(commands.Bot):
             if lang_detect == lang_dest:
                 return
 
-            if config.Debug: print(f'###########################')
             if config.Debug: print(f'    LANGUAGE  DETECTION    ')
             if config.Debug: print(f'###########################')
             if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.upper()}')
@@ -160,60 +154,23 @@ class Bot(commands.Bot):
         if config.Debug: print(f'###########################')
         await msg.channel.send(out_text)
 
-bot = Bot()
-
-## CLEANUP
-def cleanup():
-    print("!!!CLEANING!!!")
-    time.sleep(1)
-    print("!!!CLEAN FINISHED!!!")
-
-## SIG HANDLER 
-def sig_handler(signum, frame) -> None:
-    sys.exit(1)
-
-## _MEI cleaner https://stackoverflow.com/questions/57261199/python-handling-the-meipass-folder-in-temporary-folder
-def CLEANMEIFOLDERS():
-    try:
-        base_path = sys._MEIPASS 
-    except Exception:
-        base_path = os.path.abspath(".")
-    if config.Debug: print(f'_MEI base path: {base_path}')
-    base_path = base_path.split("\\")
-    base_path.pop(-1)
-    temp_path = ""
-    for item in base_path:
-        temp_path = temp_path + item + "\\"
-    mei_folders = [f for f in glob.glob(temp_path + "**/", recursive=False)]
-    for item in mei_folders:
-        if item.find('_MEI') != -1 and item != sys._MEIPASS + "\\":
-            rmtree(item)
-
 ## MAIN
 def main():
-    signal.signal(signal.SIGTERM, sig_handler)
-
     try:
-        CLEANMEIFOLDERS()
         if config.Debug: print('###########################')
         if config.Debug: print('         CONNECTION        ')
         print('###########################')
         print('CHANNEL      | {}'.format(config.Twitch_Channel))
         print('USERNAME     | {}'.format(config.Twitch_Nick))
         print('ENGINE       | {}'.format(config.Translator))
+
+        bot = Bot()
         bot.run()
         print(f'###########################')
 
     except Exception as e:
         if config.Debug: print(e)
-        input()
-
-    finally:
-        signal.signal(signal.SIGTERM, signal.SIG_IGN)
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-        cleanup()
-        signal.signal(signal.SIGTERM, signal.SIG_DFL)
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    (main())
