@@ -6,13 +6,13 @@ import signal
 import config
 from shutil import rmtree                                                    
 
-url_suffix = config.GoogleTranslate_suffix
-translator = AsyncTranslator(url_suffix=url_suffix)
+url_suffix = config.GoogleTranslate_suffix                              ## LOAD CONFIG SPECIFIED URL SUFFIX FOR GOOGLE TRASNALTE            || i.e. 'com'           or          'co.jp'
+translator = AsyncTranslator(url_suffix=url_suffix)                     ## LOAD CONFIG SPECIFIED SUFFIX INTO TRANSLATOR
 
 ## CONFIG FORMATTING
 Lang_Ignore = [x.strip() for x in config.Lang_Ignore]                   ## LOAD CONFIG SPECIFIED INGORE LANGUAGE LIST                       || IGNORE WHOLE TEXT IF CONFID SPECIFIED LANGUAGE DETECTED
 Ignore_Users = [x.strip() for x in config.Ignore_Users]                 ## LOAD CONFIG SPECIFIED INGORE USERS LIST                          || IGNORE WHOLE TEXT IF CONFIG SPECIFIED USER DETECTED
-Ignore_Users = [str.lower() for str in Ignore_Users]                    ## FORMAT CONFIG SPECIFIED INGORE USERS LIST
+Ignore_Users = [str.lower() for str in Ignore_Users]                    ## FORMAT CONFIG SPECIFIED INGORE USERS LIST (LOWERCASE)
 Ignore_Line = [x.strip() for x in config.Ignore_Line]                   ## LOAD CONFIG SPECIFIED INGORE LINE LIST                           || IGNORE WHOLE TEXT IF CONFIG SPECIFED LINE DETECTED
 Delete_Words = [x.strip() for x in config.Delete_Words]                 ## LOAD CONFIG SPECIFIED INGORE WORDS LIST                          || IGNORE ONLY CONFIG SPECIFIED WORD
 
@@ -20,10 +20,9 @@ class Bot(commands.Bot):
 
     def __init__(self):                                                 ## TWITCH IRC CONNECTION
         super().__init__(
-            token               = config.Twitch_OAUTH,
-            nick                = config.Twitch_Nick,
-            prefix              = "!",
-            initial_channels    = [config.Twitch_Channel]
+            token               = config.Twitch_OAUTH,                  ## LOAD OAUTH TOKEN FOR AUTHENTICATION AND CONNECTION, FROM CONFIG SPECIFIED TOKEN
+            prefix              = "!",                                  ## DEFINE BOT PREFIX                                                || i.e. "!"
+            initial_channels    = [config.Twitch_Channel]               ## LOAD CHANNEL FROM CONFIG SPECIFIED CHANNEL
         )
 
     async def event_ready(self):
@@ -42,8 +41,8 @@ class Bot(commands.Bot):
         if msg.content.startswith('!'):
             return
 
-        message = msg.content
-        user    = msg.author.name.lower()
+        message = msg.content                                           ## LOAD MESSAGE CONTENT INTO VARIABLE
+        user    = msg.author.name.lower()                               ## LOAD MESSAGE USER INTO VARIABLE
 
         if user in Ignore_Users:                                        ## IGNORE CONFIG SPECIFIED USERS
             return
@@ -88,15 +87,15 @@ class Bot(commands.Bot):
                 if config.Debug: print(e)
 
             lang_dest = config.Lang_Home.lower()
-            if lang_detect == lang_dest:
+            if lang_detect == lang_dest:                                ## IGNORE IF DETECTED LANGUAGE = DESTINATION / HOME LANGUAGE
                 return
-            if lang_detect in Lang_Ignore:
+            if lang_detect in Lang_Ignore:                              ## IGNORE IF DETECTED LANGUAGE IN CONFIG SPECIFIED LANGUAGE IGNORE LIST
                 return
 
             if config.Debug: print(f'    LANGUAGE  DETECTION    ')
             if config.Debug: print(f'###########################')
-            if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.lower()}')
-            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.lower()}")
+            if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.lower()}')                 ## FORMAT DETECTED LANGUAGE SHORTHAND TO LOWERCASE
+            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.lower()}")                   ## FORMAT DESTINATION LANGUAGE SHORTHAND TO LOWERCASE
             m = in_text.split(':')
             if len(m) >= 2:
                 if m[0] in config.TargetLangs:
@@ -111,7 +110,7 @@ class Bot(commands.Bot):
             translatedText = await translator.translate(in_text, lang_dest)
         
         ## DEEPL-TRANSLATE | LANGUAGE DETECTION & TRANSLATION
-        elif config.Translator == 'deepl':
+        if config.Translator == 'deepl':
             try:
                 detected = await translator.detect(in_text)
                 lang_detect = detected[0]
@@ -119,15 +118,15 @@ class Bot(commands.Bot):
                 if config.Debug: print(e)
 
             lang_dest = config.Lang_Home.upper()
-            if lang_detect in Lang_Ignore:
+            if lang_detect in Lang_Ignore:                              ## IGNORE IF DETECTED LANGUAGE IN CONFIG SPECIFIED LANGUAGE IGNORE LIST
                 return
-            if lang_detect == lang_dest:
+            if lang_detect == lang_dest:                                ## IGNORE IF DETECTED LANGUAGE = DESTINATION / HOME LANGUAGE
                 return
 
             if config.Debug: print(f'    LANGUAGE  DETECTION    ')
             if config.Debug: print(f'###########################')
-            if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.upper()}')
-            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.upper()}")
+            if config.Debug: print(f"SOURCE LANGUAGE  | {lang_detect.upper()}")                 ## FORMAT DETECTED LANGUAGE SHORTHAND TO UPPERCASE
+            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.upper()}")                   ## FORMAT DESTINATION LANGUAGE SHORTHAND TO UPPERCASE
             m = in_text.split(':')
             if len(m) >= 2:
                 if m[0] in config.TargetLangs:
@@ -135,15 +134,13 @@ class Bot(commands.Bot):
                     in_text = ':'.join(m[1:])
             if config.Debug: print(f"MESSAGE          | {in_text}")
             if config.Debug: print('USER             | {}'.format(user))
-            if lang_detect == lang_dest:
-                return
             if config.Debug: print(f'###########################')
             if config.Debug: print(f'        TRANSLATION        ')
             if config.Debug: print(f'###########################')
             
             translatedText = deepl.translate(source_language=config.Lang_Away.upper(), target_language=config.Lang_Home.upper(), text=in_text, formality_tone="informal")  
                   
-        ## TRANSLATED OUT TEXT TO CHANNEL
+        ## TRANSLATIED OUT TEXT TO CHANNEL
         if config.Debug: print('ENGINE            | {}'.format(config.Translator))
         out_text = translatedText
         if config.Show_ByName:
@@ -159,7 +156,7 @@ def main():
         if config.Debug: print('         CONNECTION        ')
         print('###########################')
         print('CHANNEL      | {}'.format(config.Twitch_Channel))
-        print('USERNAME     | {}'.format(config.Twitch_Nick))
+        print('USERNAME     | {}'.format(config.Bot_Username))
         print('ENGINE       | {}'.format(config.Translator))
 
         bot = Bot()
