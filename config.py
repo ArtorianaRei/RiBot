@@ -1,6 +1,6 @@
 Twitch_Channel          = 'INPUT TWITCH CHANNEL'
 Twitch_Nick             = 'INPUT BOT USERNAME'
-Twitch_OAUTH            = 'INPUT OAUTH KEY'                      ## https://twitchtokengenerator.com/
+Twitch_OAUTH            = 'INPUT OAUTH KEY'                                   ## https://twitchtokengenerator.com/
 DeepL_AUTH              = ''
 Bot_Color               = 'DodgerBlue' 
 ## Alternate Colors      |  'Blue', 'Coral', 'DodgerBlue', 'SpringGreen', 'YellowGreen', 'Green', 'OrangeRed', 'Red', 'GoldenRod', 'HotPink', 'CadetBlue', 'SeaGreen', 'Chocolate', 'BlueViolet', 'Firebrick'
