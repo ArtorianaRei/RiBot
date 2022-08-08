@@ -1,12 +1,12 @@
 Twitch_Channel          = 'INPUT TWITCH CHANNEL'
 Twitch_Nick             = 'INPUT BOT USERNAME'
-Twitch_OAUTH            = 'INPUT OAUTH KEY'
+Twitch_OAUTH            = 'INPUT OAUTH KEY'                      ## https://twitchtokengenerator.com/
 DeepL_AUTH              = ''
 Bot_Color               = 'DodgerBlue' 
-# Alternate Colors      |  'Blue', 'Coral', 'DodgerBlue', 'SpringGreen', 'YellowGreen', 'Green', 'OrangeRed', 'Red', 'GoldenRod', 'HotPink', 'CadetBlue', 'SeaGreen', 'Chocolate', 'BlueViolet', 'Firebrick'
+## Alternate Colors      |  'Blue', 'Coral', 'DodgerBlue', 'SpringGreen', 'YellowGreen', 'Green', 'OrangeRed', 'Red', 'GoldenRod', 'HotPink', 'CadetBlue', 'SeaGreen', 'Chocolate', 'BlueViolet', 'Firebrick'
 
 Translator              = 'google'
-# Translator            | 'google' or 'deepl'
+## Translator            | 'google' or 'deepl'
 
 GoogleTranslate_suffix  = 'com'
 Lang_Home               = 'en'
@@ -17,5 +17,6 @@ Lang_Ignore             = ["af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn",
 Ignore_Users            = ['Streamelements', 'SoundAlerts']
 Ignore_Line             = ['http', 'com', 'www']
 Delete_Words            = [':']
-Show_ByName             = True
-Debug                   = False
+
+Show_ByName             = True                                                  ## DISPLAY USERNAME WITH TRANSLATED TEXT
+Debug                   = False                                                 ## DEBUG MODE
