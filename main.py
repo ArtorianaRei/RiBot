@@ -1,4 +1,3 @@
-from ast import Delete
 from twitchio.ext import commands
 from async_google_trans_new import AsyncTranslator, constant
 import re
