@@ -113,6 +113,7 @@ class Bot(commands.Bot):
         
         ## DEEPL-TRANSLATE | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'deepl':
+            lang_detect = ''
             try:
                 detected = await translator.detect(in_text)             ## AWAIT FOR LANGUAGE DETECTION
                 lang_detect = detected[0]                               ## LOAD DETECTED LANGUAGE
