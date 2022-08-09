@@ -77,15 +77,15 @@ class Bot(commands.Bot):
         if not message:                                                 ## IGNORE IF MESSAGE IS BLANK
             return
         in_text = message                                               ## PARSE MESSAGE TO TRANSLATION AS IN_TEXT
+        lang_detect = ''                                                ## READY LANGUAGE DETECTION                                     || SET DETECTED LANGUAGE TO BLANK
 
         ## GOOGLE_TRANS_NEW | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'google':
-            lang_detect = ''
             try:
                 detected = await translator.detect(in_text)             ## AWAIT FOR LANGUAGE DETECTION
                 lang_detect = detected[0]                               ## LOAD DETECTED LANGUAGE
             except Exception as e:
-                if config.Debug: print(e)
+                return
 
             lang_dest = config.Lang_Home.lower()                        ## LOAD DESTINATION LANGUAGE FROM CONFIG SPECIFIED HOME LANGUAGE, ALSO FORMAT TO LOWERCASE
             if lang_detect == lang_dest:                                ## IGNORE IF DETECTED LANGUAGE = DESTINATION / HOME LANGUAGE
@@ -112,12 +112,11 @@ class Bot(commands.Bot):
         
         ## DEEPL-TRANSLATE | LANGUAGE DETECTION & TRANSLATION
         if config.Translator == 'deepl':
-            lang_detect = ''
             try:
                 detected = await translator.detect(in_text)             ## AWAIT FOR LANGUAGE DETECTION
                 lang_detect = detected[0]                               ## LOAD DETECTED LANGUAGE
             except Exception as e:
-                if config.Debug: print(e)
+                return
 
             lang_dest = config.Lang_Home.upper()                        ## LOAD DESTINATION LANGUAGE FROM CONFIG SPECIFIED HOME LANGUAGE, ALSO FORMAT TO UPPERCASE
             if lang_detect in Lang_Ignore:                              ## IGNORE IF DETECTED LANGUAGE IN CONFIG SPECIFIED LANGUAGE IGNORE LIST
