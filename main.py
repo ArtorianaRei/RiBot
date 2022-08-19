@@ -7,7 +7,7 @@ import config
 from shutil import rmtree                                                    
 
 url_suffix = config.GoogleTranslate_suffix                              ## LOAD CONFIG SPECIFIED URL SUFFIX FOR GOOGLE TRASNALTE            || i.e. 'com'           or          'co.jp'
-translator = AsyncTranslator(url_suffix=url_suffix)                     ## LOAD CONFIG SPECIFIED SUFFIX INTO TRANSLATOR
+translator = AsyncTranslator(url_suffix=url_suffix)                     ## LOAD CONFIG SPECIFIED SUFFIX INTO TRANSLATOR 
 
 ## CONFIG FORMATTING
 Lang_Ignore = [x.strip() for x in config.Lang_Ignore]                   ## LOAD CONFIG SPECIFIED INGORE LANGUAGE LIST                       || IGNORE WHOLE TEXT IF CONFID SPECIFIED LANGUAGE DETECTED
@@ -22,7 +22,7 @@ class Bot(commands.Bot):
     def __init__(self):                                                 ## TWITCH IRC CONNECTION
         super().__init__(
             token               = config.Twitch_OAUTH,                  ## LOAD OAUTH TOKEN FOR AUTHENTICATION AND CONNECTION, FROM CONFIG SPECIFIED TOKEN
-            prefix              = "!",                                  ## DEFINE BOT PREFIX                                                || i.e. "!"
+            prefix              = config.Bot_Prefix,                    ## LOAD CONFIG SPECIFIED BOT PREFIX                                 || i.e. "!"             or             "?"
             initial_channels    = [config.Twitch_Channel]               ## LOAD CHANNEL FROM CONFIG SPECIFIED CHANNEL INTO INITIAL CHANNELS VARIABLE
         )
 
@@ -39,7 +39,7 @@ class Bot(commands.Bot):
             return
         if not msg.echo:
             await self.handle_commands(msg)
-        if msg.content.startswith('!'):
+        if msg.content.startswith(config.Bot_Prefix):
             return
 
         message = msg.content.lower()                                   ## LOAD MESSAGE CONTENT INTO VARIABLE AS LOWERCASE
@@ -88,6 +88,8 @@ class Bot(commands.Bot):
                 return
 
             lang_dest = config.Lang_Home.lower()                        ## LOAD DESTINATION LANGUAGE FROM CONFIG SPECIFIED HOME LANGUAGE, ALSO FORMAT TO LOWERCASE
+            if not lang_detect:                                         ## IGNORE IF DETECTED LANGUAGE IS BLANK
+                return
             if lang_detect == lang_dest:                                ## IGNORE IF DETECTED LANGUAGE = DESTINATION / HOME LANGUAGE
                 return
             if lang_detect in Lang_Ignore:                              ## IGNORE IF DETECTED LANGUAGE IN CONFIG SPECIFIED LANGUAGE IGNORE LIST
@@ -96,7 +98,7 @@ class Bot(commands.Bot):
             if config.Debug: print(f'    LANGUAGE  DETECTION    ')
             if config.Debug: print(f'###########################')
             if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.lower()}')                 ## FORMAT DETECTED LANGUAGE SHORTHAND TO LOWERCASE
-            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.lower()}")                   ## FORMAT DESTINATION LANGUAGE SHORTHAND TO LOWERCASE
+            if config.Debug: print(f'OUTPUT LANGUAGE  | {lang_dest}')
             m = in_text.split(':')
             if len(m) >= 2:
                 if m[0] in config.TargetLangs:
@@ -119,6 +121,8 @@ class Bot(commands.Bot):
                 return
 
             lang_dest = config.Lang_Home.upper()                        ## LOAD DESTINATION LANGUAGE FROM CONFIG SPECIFIED HOME LANGUAGE, ALSO FORMAT TO UPPERCASE
+            if not lang_detect:                                         ## IGNORE IF DETECTED LANGUAGE IS BLANK
+                return
             if lang_detect in Lang_Ignore:                              ## IGNORE IF DETECTED LANGUAGE IN CONFIG SPECIFIED LANGUAGE IGNORE LIST
                 return
             if lang_detect == lang_dest:                                ## IGNORE IF DETECTED LANGUAGE = DESTINATION / HOME LANGUAGE
@@ -126,14 +130,14 @@ class Bot(commands.Bot):
 
             if config.Debug: print(f'    LANGUAGE  DETECTION    ')
             if config.Debug: print(f'###########################')
-            if config.Debug: print(f"SOURCE LANGUAGE  | {lang_detect.upper()}")                 ## FORMAT DETECTED LANGUAGE SHORTHAND TO UPPERCASE
-            if config.Debug: print(f"OUTPUT LANGUAGE  | {lang_dest.upper()}")                   ## FORMAT DESTINATION LANGUAGE SHORTHAND TO UPPERCASE
+            if config.Debug: print(f'SOURCE LANGUAGE  | {lang_detect.upper()}')                 ## FORMAT DETECTED LANGUAGE SHORTHAND TO UPPERCASE
+            if config.Debug: print(f'OUTPUT LANGUAGE  | {lang_dest}')
             m = in_text.split(':')
             if len(m) >= 2:
                 if m[0] in config.TargetLangs:
                     lang_dest = m[0]
                     in_text = ':'.join(m[1:])
-            if config.Debug: print(f"MESSAGE          | {in_text}")
+            if config.Debug: print(f'MESSAGE          | {in_text}')
             if config.Debug: print('USER             | {}'.format(user))
             if config.Debug: print(f'###########################')
             if config.Debug: print(f'        TRANSLATION        ')
@@ -147,6 +151,7 @@ class Bot(commands.Bot):
 
         if out_text.lower() == in_text.lower():                         ## IGNORE IF OUT_TEXT MATCHES IN_TEXT
             if config.Debug: print(f'STATUS           | IGNORED')
+            if config.Debug: print(f'###########################')
             return
 
         if config.Show_ByName:
@@ -161,9 +166,10 @@ def main():
         if config.Debug: print('###########################')
         if config.Debug: print('         CONNECTION        ')
         print('###########################')
-        print('CHANNEL      | {}'.format(config.Twitch_Channel))
-        print('USERNAME     | {}'.format(config.Bot_Username))
-        print('ENGINE       | {}'.format(config.Translator))
+        print('CHANNEL      | {}'.format(config.Twitch_Channel))        ## PRINT CONFIG SPECIFIED TWITCH CHANNEL TO CONSOLE
+        print('USERNAME     | {}'.format(config.Bot_Username))          ## PRINT CONFIG SPECIFIED BOT USERNAME TO CONSOLE
+        print('ENGINE       | {}'.format(config.Translator))            ## PRINT CONFIG SPECIFIED TRANSLATOR TO CONSOLE
+        print('PREFIX       | {}'.format(config.Bot_Prefix))            ## PRINT CONFIG SPECIFIED BOT PREFIX TO CONSOLE
 
         bot = Bot()
         bot.run()
